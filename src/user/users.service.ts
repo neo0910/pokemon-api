@@ -1,27 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/sequelize';
 
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
+import { User } from './models/users.model';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
-  ) {}
+  constructor(@InjectModel(User) private usersRepository: typeof User) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
+    return this.usersRepository.create(createUserDto as any);
   }
 
   async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.findAll();
   }
 
   async findOneById(id: string | number): Promise<User> {
-    return this.usersRepository.findOne(id);
+    return this.usersRepository.findByPk(id);
   }
 
   async findOneByEmail(email: string): Promise<User> {
@@ -29,7 +25,8 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.usersRepository.delete(id);
+    const user = await this.findOneById(id);
+    await user.destroy();
   }
 
   async activate(activationLink: string): Promise<void> {
@@ -42,6 +39,6 @@ export class UsersService {
     }
 
     user.isActivated = true;
-    await this.usersRepository.save(user);
+    await user.save();
   }
 }

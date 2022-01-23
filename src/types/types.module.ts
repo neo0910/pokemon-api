@@ -1,14 +1,14 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Type } from './entities/type.entity';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { Type } from './models/type.model';
 import { TypesController } from './types.controller';
 import { TypesService } from './types.service';
 
 @Module({
-  exports: [TypesService],
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Type])],
+  exports: [SequelizeModule, TypesService],
+  imports: [JwtModule.register({}), SequelizeModule.forFeature([Type])],
   controllers: [TypesController],
   providers: [TypesService],
 })

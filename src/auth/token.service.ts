@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
 
-import { User } from 'src/user/entities/user.entity';
-import { Token } from './entities/token.entity';
+import { Token } from './models/token.model';
 import { UsersService } from 'src/user/users.service';
+import { User } from 'src/user/models/users.model';
 
 @Injectable()
 export class TokenService {
@@ -15,7 +14,7 @@ export class TokenService {
   constructor(
     private jwtService: JwtService,
     private usersService: UsersService,
-    @InjectRepository(Token) private tokenRepository: Repository<Token>,
+    @InjectModel(Token) private tokenRepository: typeof Token,
   ) {}
 
   async generateTokens(user: User) {
@@ -37,25 +36,27 @@ export class TokenService {
 
   async saveToken(userId: number, refreshToken: string) {
     const tokenData = await this.tokenRepository.findOne({
-      user: { id: userId },
+      include: [User],
+      where: { '$user.id$': userId },
     });
 
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
-      return this.tokenRepository.save(tokenData);
+      return tokenData.save();
     }
 
     const user = await this.usersService.findOneById(userId);
-    const token = this.tokenRepository.create({ refreshToken, user });
-    return this.tokenRepository.save(token);
-  }
-
-  async removeToken(refreshToken: string): Promise<void> {
-    await this.tokenRepository.delete({ refreshToken });
+    const token = await this.tokenRepository.create({ refreshToken, user });
+    return token.save();
   }
 
   async findToken(refreshToken: string): Promise<Token> {
-    return this.tokenRepository.findOne({ refreshToken });
+    return this.tokenRepository.findOne({ where: { refreshToken } });
+  }
+
+  async removeToken(refreshToken: string): Promise<void> {
+    const token = await this.findToken(refreshToken);
+    await token.destroy();
   }
 
   validateAccessToken(token: string) {

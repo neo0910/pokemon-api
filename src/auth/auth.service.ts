@@ -11,8 +11,8 @@ import {
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { MailService } from './mail.service';
 import { TokenService } from './token.service';
-import { User } from 'src/user/entities/user.entity';
 import { UsersService } from 'src/user/users.service';
+import { User } from 'src/user/models/users.model';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,7 @@ export class AuthService {
     private tokenService: TokenService,
   ) {}
 
-  private async validateUser(userDto: CreateUserDto) {
+  private async validateUser(userDto: CreateUserDto): Promise<User> {
     const user = await this.usersService.findOneByEmail(userDto.email);
 
     const passwordEquals = await bcrypt.compare(
@@ -41,7 +41,7 @@ export class AuthService {
     const user = await this.validateUser(userDto);
     const tokens = await this.tokenService.generateTokens(user);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
-    return { ...tokens, user };
+    return { ...tokens, user: user.get() };
   }
 
   async registration(userDto: CreateUserDto) {
@@ -68,7 +68,7 @@ export class AuthService {
     const tokens = await this.tokenService.generateTokens(user);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
 
-    return { ...tokens, user };
+    return { ...tokens, user: user.get() };
   }
 
   async logout(refreshToken: string): Promise<void> {
@@ -93,6 +93,6 @@ export class AuthService {
     const tokens = await this.tokenService.generateTokens(user);
     await this.tokenService.saveToken(user.id, tokens.refreshToken);
 
-    return { ...tokens, user };
+    return { ...tokens, user: user.get() };
   }
 }

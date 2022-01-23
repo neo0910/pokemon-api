@@ -1,20 +1,20 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MailService } from './mail.service';
-import { Token } from './entities/token.entity';
+import { Token } from './models/token.model';
 import { TokenService } from './token.service';
 import { UsersModule } from 'src/user/users.module';
 
 @Module({
   controllers: [AuthController],
-  exports: [TypeOrmModule, AuthService, JwtModule],
+  exports: [SequelizeModule, AuthService, JwtModule],
   imports: [
     JwtModule.register({}),
-    TypeOrmModule.forFeature([Token]),
+    SequelizeModule.forFeature([Token]),
     UsersModule,
   ],
   providers: [AuthService, MailService, TokenService],

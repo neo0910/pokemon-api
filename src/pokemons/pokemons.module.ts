@@ -1,18 +1,18 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SequelizeModule } from '@nestjs/sequelize';
 
-import { Pokemon } from './entities/pokemon.entity';
+import { Pokemon } from './models/pokemon.model';
 import { PokemonsController } from './pokemons.controller';
 import { PokemonsService } from './pokemons.service';
 import { TypesModule } from 'src/types/types.module';
 
 @Module({
   controllers: [PokemonsController],
-  exports: [TypeOrmModule],
+  exports: [SequelizeModule],
   providers: [PokemonsService],
   imports: [
-    TypeOrmModule.forFeature([Pokemon]),
+    SequelizeModule.forFeature([Pokemon]),
     JwtModule.register({}),
     TypesModule,
   ],

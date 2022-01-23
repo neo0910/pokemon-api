@@ -1,15 +1,15 @@
 import { ConfigModule } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SequelizeModule } from '@nestjs/sequelize';
 
 import { AuthModule } from './auth/auth.module';
-import { Pokemon } from './pokemons/entities/pokemon.entity';
+import { Pokemon, PokemonType } from './pokemons/models/pokemon.model';
 import { PokemonsModule } from './pokemons/pokemons.module';
-import { Token } from './auth/entities/token.entity';
-import { Type } from './types/entities/type.entity';
+import { Token } from './auth/models/token.model';
+import { Type } from './types/models/type.model';
 import { TypesModule } from './types/types.module';
-import { User } from './user/entities/user.entity';
+import { User } from './user/models/users.model';
 import { UsersModule } from './user/users.module';
 
 @Module({
@@ -18,14 +18,15 @@ import { UsersModule } from './user/users.module';
       envFilePath: `.${process.env.NODE_ENV}.env`,
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
+    SequelizeModule.forRoot({
+      dialect: 'postgres',
       host: process.env.POSTGRES_HOST,
       port: parseInt(process.env.POSTGRES_PORT, 10),
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      entities: [User, Token, Pokemon, Type],
+      models: [Pokemon, PokemonType, Token, User, Type],
+      autoLoadModels: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     MailerModule.forRoot({

@@ -17,5 +17,5 @@ export class CreatePokemonDto {
   readonly weight: number;
 
   @IsNumber({}, { each: true })
-  readonly type_id: number[];
+  readonly type_ids: number[];
 }

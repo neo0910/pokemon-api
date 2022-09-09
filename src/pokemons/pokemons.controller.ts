@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -29,8 +30,13 @@ export class PokemonsController {
   }
 
   @Get()
-  async getAll() {
-    return this.pokemonsService.findAll();
+  async getAll(@Query('limit') limit?: string) {
+    const data = await this.pokemonsService.findAll();
+    if (typeof limit !== 'undefined') {
+      return data.slice(0, +limit);
+    }
+
+    return data;
   }
 
   @Get(':id')

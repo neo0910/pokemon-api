@@ -7,7 +7,7 @@ services:
       PG_DATA: /var/lib/postgresql/data
     env_file:
       - ./.development.env
-    image: postgres
+    image: postgres:13-alpine
     ports:
       - 54323:5432
     restart: always
